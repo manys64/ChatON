@@ -86,7 +86,7 @@ namespace ChatON
             //else//connection to server
             //{
                 // ClearRequireMsg();
-                IPAddress.TryParse("192.168.56.1", out ipAdress);//Próba ręcznego TODO. ok
+                IPAddress.TryParse("192.168.0.25", out ipAdress);//Próba ręcznego TODO. ok
 
                 socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 IPEndPoint ipEndPoint = new IPEndPoint(ipAdress, 4242);
