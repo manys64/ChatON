@@ -86,7 +86,7 @@ namespace ChatON
             //else//connection to server
             //{
                 // ClearRequireMsg();
-                IPAddress.TryParse("192.168.0.25", out ipAdress);//Próba ręcznego TODO. ok
+                IPAddress.TryParse("192.168.56.1", out ipAdress);//Próba ręcznego TODO. ok
 
                 socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 IPEndPoint ipEndPoint = new IPEndPoint(ipAdress, 4242);
@@ -224,35 +224,5 @@ namespace ChatON
         }
 
 
-        /// <summary>
-        /// show validation message for login
-        /// </summary>
-        //private void LoginRequireShowMsg()
-        //{
-        //    IPRequire.Visibility = System.Windows.Visibility.Hidden;//to jak zmienia się widocznosci
-        //    ValidIPRequire.Visibility = System.Windows.Visibility.Hidden;
-
-        //    LoginRequire.Visibility = System.Windows.Visibility.Visible;
-        //}
-        ///// <summary>
-        ///// show validation message for IP
-        ///// </summary>
-        //private void ValidIPRequireShowMsg()
-        //{
-        //    LoginRequire.Visibility = System.Windows.Visibility.Hidden;
-        //    IPRequire.Visibility = System.Windows.Visibility.Hidden;
-
-        //    ValidIPRequire.Visibility = System.Windows.Visibility.Visible;
-
-        //}
-        ///// <summary>
-        ///// hidde all validation messages
-        ///// </summary>
-        //private void ClearRequireMsg()
-        //{
-        //    LoginRequire.Visibility = System.Windows.Visibility.Hidden;
-        //    IPRequire.Visibility = System.Windows.Visibility.Hidden;
-        //    ValidIPRequire.Visibility = System.Windows.Visibility.Hidden;
-        //}
     }
 }
