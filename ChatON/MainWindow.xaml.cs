@@ -21,6 +21,7 @@ using System.Windows.Threading;
 
 using Server;
 using System.Threading;
+using System.Diagnostics;
 /// <summary>
 /// Client Part of the code: UI + Net Socket code
 /// </summary>
@@ -37,6 +38,8 @@ namespace ChatON
         public static string login;
         public static Thread thread;
         public static bool isConnected = false;
+
+        public static string mainChatName = "Czat ogólny";
 
         public MainWindow()
         {
@@ -55,7 +58,7 @@ namespace ChatON
                 Packet p = new Packet(PacketType.CloseConnection, ID);
 
                 p.data.Add(login);
-                p.data.Add("Exit from Chat");
+                p.data.Add(login + " opuścił(a) czat.");
 
                 socket.Send(p.ToBytes());
 
@@ -75,38 +78,55 @@ namespace ChatON
         /// <param name="e"></param>
         private void ConnectBtn_Click(object sender, RoutedEventArgs e)
         {
-            //if (string.IsNullOrWhiteSpace(Login.Text))//login validation
-            //{
-            //  //  LoginRequireShowMsg();
-            //}
+            if (string.IsNullOrWhiteSpace(Login.Text) || Login.Text.Length > 17)//login validation
+            {
+                //  LoginRequireShowMsg(); //TODO TEKST POKAZANY ZA DLUGI LOGIN
+            }
             //else if (!IPAddress.TryParse(serverIP.Text, out ipAdress))//ip validation
             //{
             //  //  ValidIPRequireShowMsg();
             //}
             //else//connection to server
             //{
-                // ClearRequireMsg();
-                IPAddress.TryParse("192.168.0.25", out ipAdress);//Próba ręcznego TODO. ok
+            // ClearRequireMsg();
 
-                socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                IPEndPoint ipEndPoint = new IPEndPoint(ipAdress, 4242);
+            string ip = "192.168.56.1";//Brac jakos od serwera TODO
+            IPAddress.TryParse(ip, out ipAdress);
+            AddMsgToBoard(ip, "System");
 
-                try
-                {
-                    socket.Connect(ipEndPoint);
-                    login = Login.Text;
 
-                    isConnected = true;
-                    ConnectBtn.IsEnabled = false;
-                    SendBtn.IsEnabled = true;
+            socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            IPEndPoint ipEndPoint = new IPEndPoint(ipAdress, 4242);
 
-                    thread = new Thread(Data_IN);
-                    thread.Start();
-                }
-                catch (SocketException ex)
-                {
-                    AddMsgToBoard("Error during connecting to server", "System");
-                }
+            try
+            {
+                socket.Connect(ipEndPoint);
+                login = Login.Text;
+
+                isConnected = true;
+                ConnectBtn.IsEnabled = false;
+                SendBtn.IsEnabled = true;
+
+                thread = new Thread(Data_IN);
+                thread.Start();
+
+                //Stworzenie ui boxa buttona ktory jest odnieseniem do tego czatu
+                Button czatOgolny = new Button();
+
+                czatOgolny.Content = mainChatName;
+                czatOgolny.Name = "CzatOgolny";
+                czatOgolny.Foreground = Brushes.White;
+                czatOgolny.Background = Brushes.MediumPurple;
+                czatOgolny.Height = 45;
+                czatOgolny.Width = 140;
+
+                sp.Children.Add(czatOgolny);//On ma potem przekierowywac na czat ogolny
+
+            }
+            catch (SocketException ex)
+            {
+                AddMsgToBoard("Error during connecting to server", "System");
+            }
             //}
         }
 
@@ -126,6 +146,24 @@ namespace ChatON
             p.data.Add(msg);
             socket.Send(p.ToBytes());
         }
+
+        //dodane wlasnorecznie zeby tez na enter sie wysylalo. nie moze byc okno widoczne poki nie jestes na czacie bo wywali
+        private void OnKeyDownHandler(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                //TODO ZE JAK MSG JEST PUSTE ZEBY NIE MOZNA BYLO WYSLAC
+                string msg = Msg.Text;
+                Msg.Text = string.Empty;
+
+                Packet p = new Packet(PacketType.Chat, ID);
+                p.data.Add(login);
+                p.data.Add(msg);
+                socket.Send(p.ToBytes());
+            }
+        }
+
+
 
 
         /// <summary>
@@ -170,7 +208,7 @@ namespace ChatON
                     ID = p.data[0];
                     Packet packet = new Packet(PacketType.Chat, ID);
                     packet.data.Add(login);
-                    packet.data.Add("Enter to Chat");
+                    packet.data.Add(login + " dołączył(a) do czatu.");
                     socket.Send(packet.ToBytes());
                     break;
 
@@ -211,17 +249,41 @@ namespace ChatON
         {
             this.Dispatcher.Invoke(new Action(() =>
             {
-                MsgBoard.Text += Environment.NewLine +
-                                 DateTime.Now.ToString() +
-                                 " " +
-                                 user +
-                                 " say: " +
-                                 msg;//Do zmiany na nick:   wiadomosc
+                TextBox messageHeader = new TextBox();
+
+                messageHeader.FontSize = 19;//nie dziala tak
+                messageHeader.Foreground = Brushes.Black;
+                messageHeader.FontWeight = FontWeights.Bold;
+                // cel w innym kolorze i w innych fontsajzie. solution: moze dwa razy invoke action? Nope
+                messageHeader.Text += Environment.NewLine + user + "     " +
+                                 DateTime.Now.ToString("dd/MM/yyyy H:mm");
+                messageHeader.BorderBrush = Brushes.Transparent;
+
+                TextBox message = new TextBox();
+
+                message.FontSize = 15;
+                message.Foreground = Brushes.Purple;
+                int messLines = msg.Length / 40;
+
+                message.Text += Environment.NewLine + msg;
+                //TODO MSG MA ROBIC NEWLINE zaleznie od wartosci
+
+                message.BorderBrush = Brushes.BlanchedAlmond;
+
+                MsgBoard.Children.Add(messageHeader);
+                MsgBoard.Children.Add(message);
+
+
+
+
                 MsgBoardScroll.ScrollToEnd();
-                MsgBoard.UpdateLayout();
+                //  MsgBoard.UpdateLayout();
             }));
 
+
+
         }
+
 
 
     }

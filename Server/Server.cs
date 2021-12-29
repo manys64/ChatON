@@ -15,6 +15,7 @@ namespace Server
     {
 
         static Socket listenerSocket;
+        //Tu tez sockety priv chatow
         static List<ClientData> _clients;
 
         /// <summary>
@@ -143,7 +144,8 @@ namespace Server
         }
         private static void AbortClientThread(ClientData c)
         {
-            c.clientThread.Abort();
+            c.clientThread.Abort();//interrupt zamiast troche inaczej. To powod wywalania w .net core Aborta nie uzywamy
+                                   //https://docs.microsoft.com/pl-pl/dotnet/standard/threading/destroying-threads
         }
     }
 }

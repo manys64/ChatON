@@ -13,7 +13,7 @@
             <TextBlock HorizontalAlignment="Left" Margin="5,13,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="79" Width="131" FontSize="60" FontWeight="Bold" FontFamily="Sans" Foreground="#dac3e8" RenderTransformOrigin="0.529,0.092"><Run Language="pl-pl" Text="Chat"/></TextBlock>
             <TextBlock HorizontalAlignment="Left" Margin="204,22,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="54" Width="83" FontSize="50" FontWeight="Bold" FontFamily="Sans" Foreground="Black" RenderTransformOrigin="0.529,0.092"><Run Language="pl-pl" Text="ON"/></TextBlock>
             <Image HorizontalAlignment="Left" Height="71" Margin="141,22,0,0" VerticalAlignment="Top" Width="63" Source="/ChatON;component/Images/chat.png"/>
-            
+
             <!-- Login -->
             <Grid Margin="358,10,10,17">
                 <TextBox HorizontalAlignment="Left" Height="26" Margin="157,10,0,0" Text="Nazwa" FontSize="15" TextWrapping="Wrap" VerticalAlignment="Top" Width="164" Background="#c19ee0" Foreground="White" Name="Login"/>
@@ -29,19 +29,24 @@
 
         <!-- Chat -->
         <Grid Margin="202,147,29,16" Background="#b185db">
-            <TextBlock HorizontalAlignment="Center" Height="40" Text="Friend" Padding="8" FontSize="20" TextWrapping="Wrap" VerticalAlignment="Top" Width="449" Background="#9163cb" Foreground="#dac3e8" Margin="0,10,0,0"/>
+            <TextBlock HorizontalAlignment="Center" Height="40" Text="Czat Ogólny" Padding="8" FontSize="20" TextWrapping="Wrap" VerticalAlignment="Top" Width="449" Background="#9163cb" Foreground="#dac3e8" Margin="0,10,0,0"/>
             <ScrollViewer HorizontalAlignment="Center" Height="371" Margin="0,75,0,0" VerticalAlignment="Top" Width="449" Background="#c19ee0"  Name="MsgBoardScroll">
-                <TextBox Name="MsgBoard" IsEnabled="False" >
-                </TextBox>
+                <StackPanel Name="MsgBoard" IsEnabled="False">
+                </StackPanel>
             </ScrollViewer>
-            <TextBox HorizontalAlignment="Left" Height="74" Margin="16,464,0,0" Text="Wpisz wiadomość." TextWrapping="Wrap" VerticalAlignment="Top" Width="313" Name="Msg"/>
+            <TextBox HorizontalAlignment="Left" Height="74" Margin="16,464,0,0" Text="Wpisz wiadomość." TextWrapping="Wrap" VerticalAlignment="Top" Width="313" Name="Msg"  KeyDown="OnKeyDownHandler" />
             <Button Content="WYŚLIJ" FontSize="20"   HorizontalAlignment="Left" Height="74" Margin="356,464,0,0" VerticalAlignment="Top" Width="80" Style="{StaticResource btn}" Name="SendBtn"
                 IsEnabled="False" Click="SendBtn_Click"/>
         </Grid>
 
         <!-- Friends -->
         <Grid HorizontalAlignment="Left" Height="610" VerticalAlignment="Bottom" Width="171" Background="#7251b5">
-            <TextBox HorizontalAlignment="Left" Height="42" Margin="28,52,0,0" Text="ip" TextWrapping="Wrap" VerticalAlignment="Top" Width="102" Name="serverIP" /><!--//Do wywalenia w finalnej. ma sie dziac pod maska-->
+            <TextBox HorizontalAlignment="Left" Height="42" Margin="30,493,0,0" Text="ip" TextWrapping="Wrap" VerticalAlignment="Top" Width="102" Name="serverIP" />
+            <StackPanel HorizontalAlignment="Left" Height="350" Margin="10,98,0,0" VerticalAlignment="Top" Width="142" Name="sp"/>
+            <Label Content="Twoje czaty:
+" HorizontalAlignment="Left" Height="44" Margin="10,23,0,0" VerticalAlignment="Top" Width="161" FontSize="19" Foreground="Wheat"/>
+            <!--ten text box//Do wywalenia w finalnej. ma sie dziac pod maska-->
+
         </Grid>
 
 
