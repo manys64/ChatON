@@ -1,0 +1,54 @@
+﻿<Window x:Class="ChatON.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ChatON"
+        mc:Ignorable="d"
+        Title="ChatON" Height="750" Width="700" Background="#9163cb" ResizeMode="NoResize" Closed="MainWindow_Closed">
+
+    <Grid>
+        <!-- TOP -->
+        <Grid HorizontalAlignment="Stretch" Width="700" Margin="0,0,0,610" Background="#815ac0">
+            <TextBlock HorizontalAlignment="Left" Margin="5,13,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="79" Width="131" FontSize="60" FontWeight="Bold" FontFamily="Sans" Foreground="#dac3e8" RenderTransformOrigin="0.529,0.092"><Run Language="pl-pl" Text="Chat"/></TextBlock>
+            <TextBlock HorizontalAlignment="Left" Margin="204,22,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="54" Width="83" FontSize="50" FontWeight="Bold" FontFamily="Sans" Foreground="Black" RenderTransformOrigin="0.529,0.092"><Run Language="pl-pl" Text="ON"/></TextBlock>
+            <Image HorizontalAlignment="Left" Height="71" Margin="141,22,0,0" VerticalAlignment="Top" Width="63" Source="/ChatON;component/Images/chat.png"/>
+            
+            <!-- Login -->
+            <Grid Margin="358,10,10,17">
+                <TextBox HorizontalAlignment="Left" Height="26" Margin="157,10,0,0" Text="Nazwa" FontSize="15" TextWrapping="Wrap" VerticalAlignment="Top" Width="164" Background="#c19ee0" Foreground="White" Name="Login"/>
+                <Button Content="Dołącz"  HorizontalAlignment="Left" Height="27" Margin="243,49,0,0" VerticalAlignment="Top" Width="78"  Style="{StaticResource btn}" FontSize="10" Name="ConnectBtn" 
+                Click="ConnectBtn_Click"/>
+                <Label Content="Nazwa użytkownika:" HorizontalAlignment="Left" Height="26" Foreground="#c19ee0" Margin="32,10,0,0" VerticalAlignment="Top" Width="120" />
+                <Label Content="Nazwa użytkownika:" HorizontalAlignment="Left" Height="26" Foreground="#c19ee0" Margin="32,10,0,0" VerticalAlignment="Top" Width="120" />
+
+            </Grid>
+
+
+        </Grid>
+
+        <!-- Chat -->
+        <Grid Margin="202,147,29,16" Background="#b185db">
+            <TextBlock HorizontalAlignment="Center" Height="40" Text="Friend" Padding="8" FontSize="20" TextWrapping="Wrap" VerticalAlignment="Top" Width="449" Background="#9163cb" Foreground="#dac3e8" Margin="0,10,0,0"/>
+            <ScrollViewer HorizontalAlignment="Center" Height="371" Margin="0,75,0,0" VerticalAlignment="Top" Width="449" Background="#c19ee0"  Name="MsgBoardScroll">
+                <TextBox Name="MsgBoard" IsEnabled="False" >
+                </TextBox>
+            </ScrollViewer>
+            <TextBox HorizontalAlignment="Left" Height="74" Margin="16,464,0,0" Text="Wpisz wiadomość." TextWrapping="Wrap" VerticalAlignment="Top" Width="313" Name="Msg"/>
+            <Button Content="WYŚLIJ" FontSize="20"   HorizontalAlignment="Left" Height="74" Margin="356,464,0,0" VerticalAlignment="Top" Width="80" Style="{StaticResource btn}" Name="SendBtn"
+                IsEnabled="False" Click="SendBtn_Click"/>
+        </Grid>
+
+        <!-- Friends -->
+        <Grid HorizontalAlignment="Left" Height="610" VerticalAlignment="Bottom" Width="171" Background="#7251b5">
+            <TextBox HorizontalAlignment="Left" Height="42" Margin="28,52,0,0" Text="ip" TextWrapping="Wrap" VerticalAlignment="Top" Width="102" Name="serverIP" /><!--//Do wywalenia w finalnej. ma sie dziac pod maska-->
+        </Grid>
+
+
+    </Grid>
+</Window>
+    
+    
+    
+
+    
