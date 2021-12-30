@@ -16,11 +16,11 @@
 
             <!-- Login -->
             <Grid Margin="358,10,10,17">
-                <TextBox HorizontalAlignment="Left" Height="26" Margin="157,10,0,0" Text="Nazwa" FontSize="15" TextWrapping="Wrap" VerticalAlignment="Top" Width="164" Background="#c19ee0" Foreground="White" Name="Login"/>
+                <TextBox HorizontalAlignment="Left" Height="26" Margin="157,10,0,0" Text="Nazwa" FontSize="15" TextWrapping="Wrap" VerticalAlignment="Top" Width="164" Background="#c19ee0" Foreground="White" Name="Login" MaxLength="16"/>
                 <Button Content="Dołącz"  HorizontalAlignment="Left" Height="27" Margin="243,49,0,0" VerticalAlignment="Top" Width="78"  Style="{StaticResource btn}" FontSize="10" Name="ConnectBtn" 
                 Click="ConnectBtn_Click"/>
                 <Label Content="Nazwa użytkownika:" HorizontalAlignment="Left" Height="26" Foreground="#c19ee0" Margin="32,10,0,0" VerticalAlignment="Top" Width="120" />
-                <Label Content="Nazwa użytkownika:" HorizontalAlignment="Left" Height="26" Foreground="#c19ee0" Margin="32,10,0,0" VerticalAlignment="Top" Width="120" />
+                <Label Content="Podana nazwa jest niepoprawna!" HorizontalAlignment="Left" Height="35" Margin="32,52,0,0" VerticalAlignment="Top" Width="194" Foreground="PaleVioletRed" Visibility="Hidden" Name="LoginRequire"/>
 
             </Grid>
 
@@ -42,9 +42,9 @@
         <!-- Friends -->
         <Grid HorizontalAlignment="Left" Height="610" VerticalAlignment="Bottom" Width="171" Background="#7251b5">
             <TextBox HorizontalAlignment="Left" Height="42" Margin="30,493,0,0" Text="ip" TextWrapping="Wrap" VerticalAlignment="Top" Width="102" Name="serverIP" />
-            <StackPanel HorizontalAlignment="Left" Height="350" Margin="10,98,0,0" VerticalAlignment="Top" Width="142" Name="sp"/>
+            <StackPanel HorizontalAlignment="Left" Height="411" Margin="10,37,0,0" VerticalAlignment="Top" Width="142" Name="sp"/>
             <Label Content="Twoje czaty:
-" HorizontalAlignment="Left" Height="44" Margin="10,23,0,0" VerticalAlignment="Top" Width="161" FontSize="19" Foreground="Wheat"/>
+" HorizontalAlignment="Center" Height="44" VerticalAlignment="Top" Width="161" FontSize="19" Foreground="Wheat"/>
             <!--ten text box//Do wywalenia w finalnej. ma sie dziac pod maska-->
 
         </Grid>

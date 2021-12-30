@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.IO;
 using System.Threading;
+
 using System.Net;
 
 namespace Server
@@ -144,8 +145,9 @@ namespace Server
         }
         private static void AbortClientThread(ClientData c)
         {
+            
             c.clientThread.Abort();//interrupt zamiast troche inaczej. To powod wywalania w .net core Aborta nie uzywamy
-                                   //https://docs.microsoft.com/pl-pl/dotnet/standard/threading/destroying-threads
+        //https://docs.microsoft.com/pl-pl/dotnet/standard/threading/destroying-threads
         }
     }
 }

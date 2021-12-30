@@ -78,57 +78,58 @@ namespace ChatON
         /// <param name="e"></param>
         private void ConnectBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(Login.Text) || Login.Text.Length > 17)//login validation
+            if (string.IsNullOrWhiteSpace(Login.Text) )//login validation
             {
-                //  LoginRequireShowMsg(); //TODO TEKST POKAZANY ZA DLUGI LOGIN
-            }
-            //else if (!IPAddress.TryParse(serverIP.Text, out ipAdress))//ip validation
-            //{
-            //  //  ValidIPRequireShowMsg();
-            //}
-            //else//connection to server
-            //{
-            // ClearRequireMsg();
-
-            string ip = "192.168.56.1";//Brac jakos od serwera TODO
-            IPAddress.TryParse(ip, out ipAdress);
-            AddMsgToBoard(ip, "System");
-
-
-            socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            IPEndPoint ipEndPoint = new IPEndPoint(ipAdress, 4242);
-
-            try
+                LoginRequireShowMsg();
+            }else//connection to server
             {
-                socket.Connect(ipEndPoint);
-                login = Login.Text;
+                ClearRequireMsg();
 
-                isConnected = true;
-                ConnectBtn.IsEnabled = false;
-                SendBtn.IsEnabled = true;
+                string ip = "192.168.56.1";//Brac jakos od serwera TODO
+                IPAddress.TryParse(ip, out ipAdress);
+                AddMsgToBoard(ip, "System");
 
-                thread = new Thread(Data_IN);
-                thread.Start();
 
-                //Stworzenie ui boxa buttona ktory jest odnieseniem do tego czatu
-                Button czatOgolny = new Button();
+                socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                IPEndPoint ipEndPoint = new IPEndPoint(ipAdress, 4242);
 
-                czatOgolny.Content = mainChatName;
-                czatOgolny.Name = "CzatOgolny";
-                czatOgolny.Foreground = Brushes.White;
-                czatOgolny.Background = Brushes.MediumPurple;
-                czatOgolny.Height = 45;
-                czatOgolny.Width = 140;
+                try
+                {
+                    socket.Connect(ipEndPoint);
+                    login = Login.Text;
 
-                sp.Children.Add(czatOgolny);//On ma potem przekierowywac na czat ogolny
+                    isConnected = true;
+                    ConnectBtn.IsEnabled = false;
+                    SendBtn.IsEnabled = true;
+
+                    thread = new Thread(Data_IN);
+                    thread.Start();
+
+                    //Stworzenie ui boxa buttona ktory jest odnieseniem do tego czatu
+                    Button czatOgolny = new Button();
+
+                    czatOgolny.Content = mainChatName;
+                    czatOgolny.Name = "CzatOgolny";
+                    czatOgolny.Foreground = Brushes.White;
+                    czatOgolny.Background = Brushes.MediumPurple;
+                    czatOgolny.Height = 45;
+                    czatOgolny.Width = 140;
+
+                    sp.Children.Add(czatOgolny);//On ma potem przekierowywac na czat ogolny
+
+                }
+                catch (SocketException ex)
+                {
+                    AddMsgToBoard("Error during connecting to server", "System");
+                }
+
 
             }
-            catch (SocketException ex)
-            {
-                AddMsgToBoard("Error during connecting to server", "System");
-            }
-            //}
+      
+
+         
         }
+
 
 
         /// <summary>
@@ -138,21 +139,23 @@ namespace ChatON
         /// <param name="e"></param>
         private void SendBtn_Click(object sender, RoutedEventArgs e)
         {
-            string msg = Msg.Text;
-            Msg.Text = string.Empty;
+            if (!string.IsNullOrWhiteSpace(Msg.Text))
+            {
+                string msg = Msg.Text;
+                Msg.Text = string.Empty;
 
-            Packet p = new Packet(PacketType.Chat, ID);
-            p.data.Add(login);
-            p.data.Add(msg);
-            socket.Send(p.ToBytes());
+                Packet p = new Packet(PacketType.Chat, ID);
+                p.data.Add(login);
+                p.data.Add(msg);
+                socket.Send(p.ToBytes());
+            }
+           
         }
 
-        //dodane wlasnorecznie zeby tez na enter sie wysylalo. nie moze byc okno widoczne poki nie jestes na czacie bo wywali
         private void OnKeyDownHandler(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter)
+            if (e.Key == Key.Enter && !string.IsNullOrWhiteSpace(Msg.Text))
             {
-                //TODO ZE JAK MSG JEST PUSTE ZEBY NIE MOZNA BYLO WYSLAC
                 string msg = Msg.Text;
                 Msg.Text = string.Empty;
 
@@ -264,15 +267,35 @@ namespace ChatON
                 message.FontSize = 15;
                 message.Foreground = Brushes.Purple;
                 int messLines = msg.Length / 40;
-
-                message.Text += Environment.NewLine + msg;
-                //TODO MSG MA ROBIC NEWLINE zaleznie od wartosci
-
                 message.BorderBrush = Brushes.BlanchedAlmond;
+
+                int chunkSize = 39;
+                int stringLength = msg.Length;
+
+                for (int i = 0; i < stringLength; i += chunkSize)
+                {
+                    if (i + chunkSize > stringLength) chunkSize = stringLength - i;
+
+                    string lastString;
+                    if (msg[i + chunkSize - 1].ToString() != " " && i + chunkSize < stringLength && msg[i + chunkSize].ToString() != " ")
+                    {// i nie jest to ostatni
+                        lastString = "-";
+
+                    }
+                    else
+                    {
+                        lastString = " ";
+                    }
+
+                    //  Console.WriteLine(str.Substring(i, chunkSize) + lastString + "| ostatni: " + str[i + chunkSize - 1]);
+                    message.Text += Environment.NewLine + msg.Substring(i, chunkSize) + lastString;
+
+
+                }
+
 
                 MsgBoard.Children.Add(messageHeader);
                 MsgBoard.Children.Add(message);
-
 
 
 
@@ -280,11 +303,17 @@ namespace ChatON
                 //  MsgBoard.UpdateLayout();
             }));
 
+            }
 
-
+        private void LoginRequireShowMsg() {
+            LoginRequire.Visibility = System.Windows.Visibility.Visible;
         }
 
 
+        private void ClearRequireMsg()
+        {
+            LoginRequire.Visibility = System.Windows.Visibility.Hidden;
+        }
 
     }
 }
