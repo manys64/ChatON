@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using System.IO;
 using System.Threading;
 using System.Net;
+using Rssdp;
 
 namespace Server
 {
@@ -62,7 +63,7 @@ namespace Server
             byte[] Buffer;
             int readBytes;
 
-            while (true)
+            while (clientSocket.Connected)
             {
                 try
                 {
@@ -75,7 +76,7 @@ namespace Server
                         DataManager(p);
                     }
                 }
-                catch (SocketException ex)
+                catch (ObjectDisposedException ex)
                 {
                     Console.WriteLine("Client Disconnected.");
                     Console.WriteLine("IOException source: {0}", ex.Source);
@@ -98,12 +99,13 @@ namespace Server
 
 
                 case PacketType.CloseConnection:
+                    CancellationTokenSource cts = new CancellationTokenSource();
                     var exitClient = GetClientByID(p);
 
                     CloseClientConnection(exitClient);
                     RemoveClientFromList(exitClient);
                     SendMessageToCLients(p);
-                    AbortClientThread(exitClient);
+                    AbortClientThread(cts, exitClient);
                     break;
             }
         }
@@ -142,10 +144,13 @@ namespace Server
         {
             _clients.Remove(c);
         }
-        private static void AbortClientThread(ClientData c)
+        private static void AbortClientThread(CancellationTokenSource token, ClientData client)
         {
-            c.clientThread.Abort();//interrupt zamiast troche inaczej. To powod wywalania w .net core Aborta nie uzywamy
-                                   //https://docs.microsoft.com/pl-pl/dotnet/standard/threading/destroying-threads
+            token.Cancel();
+            if (token.IsCancellationRequested)
+            {
+                Console.WriteLine("Abbording client " + client.id);
+            }
         }
     }
 }

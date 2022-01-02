@@ -22,6 +22,7 @@ using System.Windows.Threading;
 using Server;
 using System.Threading;
 using System.Diagnostics;
+using Rssdp;
 /// <summary>
 /// Client Part of the code: UI + Net Socket code
 /// </summary>
@@ -38,12 +39,14 @@ namespace ChatON
         public static string login;
         public static Thread thread;
         public static bool isConnected = false;
+        private SsdpDevicePublisher _Publisher;
 
         public static string mainChatName = "Czat ogólny";
 
         public MainWindow()
         {
             InitializeComponent();
+            serverIP.Text = Packet.GetIP4Adress();
         }
 
         /// <summary>
@@ -88,9 +91,7 @@ namespace ChatON
             //}
             //else//connection to server
             //{
-            // ClearRequireMsg();
-
-            string ip = "192.168.56.1";//Brac jakos od serwera TODO
+            string ip = serverIP.Text;
             IPAddress.TryParse(ip, out ipAdress);
             AddMsgToBoard(ip, "System");
 
@@ -279,12 +280,6 @@ namespace ChatON
                 MsgBoardScroll.ScrollToEnd();
                 //  MsgBoard.UpdateLayout();
             }));
-
-
-
         }
-
-
-
     }
 }
