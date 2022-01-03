@@ -22,6 +22,7 @@ using System.Windows.Threading;
 using Server;
 using System.Threading;
 using System.Diagnostics;
+using Rssdp;
 /// <summary>
 /// Client Part of the code: UI + Net Socket code
 /// </summary>
@@ -38,12 +39,14 @@ namespace ChatON
         public static string login;
         public static Thread thread;
         public static bool isConnected = false;
+        private SsdpDevicePublisher _Publisher;
 
         public static string mainChatName = "Czat ogólny";
 
         public MainWindow()
         {
             InitializeComponent();
+            serverIP.Text = Packet.GetIP4Adress();
         }
 
         /// <summary>
@@ -80,6 +83,7 @@ namespace ChatON
         {
             if (string.IsNullOrWhiteSpace(Login.Text) )//login validation
             {
+/*
                 LoginRequireShowMsg();
             }else//connection to server
             {
@@ -87,7 +91,20 @@ namespace ChatON
 
                 string ip = "192.168.56.1";//Brac jakos od serwera TODO
                 IPAddress.TryParse(ip, out ipAdress);
-                AddMsgToBoard(ip, "System");
+                AddMsgToBoard(ip, "System"); */
+
+                //  LoginRequireShowMsg(); //TODO TEKST POKAZANY ZA DLUGI LOGIN
+            }
+            //else if (!IPAddress.TryParse(serverIP.Text, out ipAdress))//ip validation
+            //{
+            //  //  ValidIPRequireShowMsg();
+            //}
+            //else//connection to server
+            //{
+            string ip = serverIP.Text;
+            IPAddress.TryParse(ip, out ipAdress);
+            AddMsgToBoard(ip, "System");
+
 
 
                 socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -303,6 +320,7 @@ namespace ChatON
                 //  MsgBoard.UpdateLayout();
             }));
 
+
             }
 
         private void LoginRequireShowMsg() {
@@ -314,6 +332,8 @@ namespace ChatON
         {
             LoginRequire.Visibility = System.Windows.Visibility.Hidden;
         }
+
+        //}check
 
     }
 }
