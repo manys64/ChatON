@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.IO;
 using System.Threading;
+
 using System.Net;
 using Rssdp;
 
@@ -144,8 +145,10 @@ namespace Server
         {
             _clients.Remove(c);
         }
+      
         private static void AbortClientThread(CancellationTokenSource token, ClientData client)
         {
+
             token.Cancel();
             if (token.IsCancellationRequested)
             {
