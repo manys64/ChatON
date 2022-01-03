@@ -81,29 +81,28 @@ namespace ChatON
         /// <param name="e"></param>
         private void ConnectBtn_Click(object sender, RoutedEventArgs e)
         {
-            //if (string.IsNullOrWhiteSpace(Login.Text) )//login validation
-            //{
-/*
+            if (string.IsNullOrWhiteSpace(Login.Text) )//login validation
+            {
+
                 LoginRequireShowMsg();
-            }else//connection to server
+            }
+            
+   
+
+                //  LoginRequireShowMsg(); //TODO TEKST POKAZANY ZA DLUGI LOGIN
+                //}
+                //else if (!IPAddress.TryParse(serverIP.Text, out ipAdress))//ip validation
+                //{
+                //  //  ValidIPRequireShowMsg();
+                //}
+
+            else//connection to server
             {
                 ClearRequireMsg();
 
-                string ip = "192.168.56.1";//Brac jakos od serwera TODO
+                string ip = serverIP.Text;
                 IPAddress.TryParse(ip, out ipAdress);
-                AddMsgToBoard(ip, "System"); */
-
-                //  LoginRequireShowMsg(); //TODO TEKST POKAZANY ZA DLUGI LOGIN
-            //}
-            //else if (!IPAddress.TryParse(serverIP.Text, out ipAdress))//ip validation
-            //{
-            //  //  ValidIPRequireShowMsg();
-            //}
-            //else//connection to server
-            //{
-            string ip = serverIP.Text;
-            IPAddress.TryParse(ip, out ipAdress);
-            AddMsgToBoard(ip, "System");
+                AddMsgToBoard(ip, "System");
 
 
 
@@ -141,10 +140,8 @@ namespace ChatON
                 }
 
 
-          
-      
+            }
 
-         
         }
 
 
@@ -324,13 +321,13 @@ namespace ChatON
             }
 
         private void LoginRequireShowMsg() {
-            //LoginRequire.Visibility = System.Windows.Visibility.Visible;
+            LoginRequire.Visibility = System.Windows.Visibility.Visible;
         }
 
 
         private void ClearRequireMsg()
         {
-            //LoginRequire.Visibility = System.Windows.Visibility.Hidden;
+            LoginRequire.Visibility = System.Windows.Visibility.Hidden;
         }
 
         
