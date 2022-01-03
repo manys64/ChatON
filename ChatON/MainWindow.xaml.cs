@@ -81,8 +81,8 @@ namespace ChatON
         /// <param name="e"></param>
         private void ConnectBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(Login.Text) )//login validation
-            {
+            //if (string.IsNullOrWhiteSpace(Login.Text) )//login validation
+            //{
 /*
                 LoginRequireShowMsg();
             }else//connection to server
@@ -94,7 +94,7 @@ namespace ChatON
                 AddMsgToBoard(ip, "System"); */
 
                 //  LoginRequireShowMsg(); //TODO TEKST POKAZANY ZA DLUGI LOGIN
-            }
+            //}
             //else if (!IPAddress.TryParse(serverIP.Text, out ipAdress))//ip validation
             //{
             //  //  ValidIPRequireShowMsg();
@@ -141,7 +141,7 @@ namespace ChatON
                 }
 
 
-            }
+          
       
 
          
@@ -324,16 +324,16 @@ namespace ChatON
             }
 
         private void LoginRequireShowMsg() {
-            LoginRequire.Visibility = System.Windows.Visibility.Visible;
+            //LoginRequire.Visibility = System.Windows.Visibility.Visible;
         }
 
 
         private void ClearRequireMsg()
         {
-            LoginRequire.Visibility = System.Windows.Visibility.Hidden;
+            //LoginRequire.Visibility = System.Windows.Visibility.Hidden;
         }
 
-        //}check
+        
 
     }
 }
