@@ -339,5 +339,15 @@ namespace ChatON
         {
             LoginRequire.Visibility = Visibility.Hidden;
         }
+
+        private void Msg_GotFocus(object sender, RoutedEventArgs e)
+        {
+            string txt = Msg.Text;
+            string initialString = "Wpisz wiadomość.";
+            if (txt == initialString)
+            {
+                Msg.Text = "";
+            }
+        }
     }
 }
