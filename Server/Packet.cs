@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Net;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
@@ -13,6 +11,8 @@ namespace Server
     public class Packet
     {
         public List<string> data;
+        public List<string> clientNames = new List<string>();
+        public List<Chat> chats = new List<Chat>();
         public int packetInt;
         public bool packetBool;
         public string senderID;
@@ -32,6 +32,8 @@ namespace Server
             Packet p = (Packet)bf.Deserialize(ms);
             ms.Close();
             this.data = p.data;
+            this.clientNames = p.clientNames;
+            this.chats = p.chats;
             this.packetInt = p.packetInt;
             this.packetBool = p.packetBool;
             this.senderID = p.senderID;

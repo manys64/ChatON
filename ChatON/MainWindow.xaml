@@ -47,7 +47,7 @@
 
         <!-- Chat -->
         <Grid Margin="202,0,29,16" Background="#b185db" Height="571" VerticalAlignment="Bottom">
-            <TextBlock HorizontalAlignment="Center" Height="40" Text="Czat Ogólny" Padding="8" FontSize="20" TextWrapping="Wrap" VerticalAlignment="Top" Width="449" Background="#9163cb" Foreground="#dac3e8" Margin="0,10,0,0"/>
+            <TextBlock x:Name="chatName" HorizontalAlignment="Center" Height="40" Padding="8" FontSize="20" TextWrapping="Wrap" VerticalAlignment="Top" Width="449" Background="#9163cb" Foreground="#dac3e8" Margin="0,10,0,0"><Run Text="Czat"/><Run Language="pl-pl" Text=" ogólny"/></TextBlock>
             <ScrollViewer HorizontalAlignment="Center" Height="371" Margin="0,75,0,0" VerticalAlignment="Top" Width="449" Background="#c19ee0"  Name="MsgBoardScroll">
                 <StackPanel Name="MsgBoard" IsEnabled="False">
                 </StackPanel>

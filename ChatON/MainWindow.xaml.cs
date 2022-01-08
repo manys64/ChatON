@@ -1,28 +1,13 @@
-﻿using System;
+﻿using Server;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-
 using System.Net;
 using System.Net.Sockets;
-using System.IO;
-using System.Windows.Threading;
-
-
-using Server;
 using System.Threading;
-using System.Diagnostics;
-using Rssdp;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
 /// <summary>
 /// Client Part of the code: UI + Net Socket code
 /// </summary>
@@ -39,8 +24,8 @@ namespace ChatON
         public static string login;
         public static Thread thread;
         public static bool isConnected = false;
-        private SsdpDevicePublisher _Publisher;
-
+        private static string chatId;
+        private static string mainChatId;
         public static string mainChatName = "Czat ogólny";
 
         public MainWindow()
@@ -62,6 +47,7 @@ namespace ChatON
 
                 p.data.Add(login);
                 p.data.Add(login + " opuścił(a) czat.");
+                p.data.Add(chatId);
 
                 socket.Send(p.ToBytes());
 
@@ -104,10 +90,8 @@ namespace ChatON
                 IPAddress.TryParse(ip, out ipAdress);
                 AddMsgToBoard(ip, "System");
 
-
-
-                socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                IPEndPoint ipEndPoint = new IPEndPoint(ipAdress, 4242);
+            socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            IPEndPoint ipEndPoint = new IPEndPoint(ipAdress, 4242);
 
                 try
                 {
@@ -121,27 +105,15 @@ namespace ChatON
                     thread = new Thread(Data_IN);
                     thread.Start();
 
-                    //Stworzenie ui boxa buttona ktory jest odnieseniem do tego czatu
-                    Button czatOgolny = new Button();
-
-                    czatOgolny.Content = mainChatName;
-                    czatOgolny.Name = "CzatOgolny";
-                    czatOgolny.Foreground = Brushes.White;
-                    czatOgolny.Background = Brushes.MediumPurple;
-                    czatOgolny.Height = 45;
-                    czatOgolny.Width = 140;
-
-                    sp.Children.Add(czatOgolny);//On ma potem przekierowywac na czat ogolny
-
-                }
-                catch (SocketException ex)
-                {
-                    AddMsgToBoard("Error during connecting to server", "System");
-                }
-
-
+                MasterChat(new Chat());
             }
-
+            catch (SocketException)
+            {
+                var errorChat = new Chat();
+                errorChat.Users = new List<string> { login, "System" };
+                errorChat.Messages = new List<Message> { new Message("System", DateTime.Now, "Error during connecting to server") };
+                AddMsgToBoard(errorChat);
+            }
         }
 
 
@@ -161,6 +133,7 @@ namespace ChatON
                 Packet p = new Packet(PacketType.Chat, ID);
                 p.data.Add(login);
                 p.data.Add(msg);
+                p.data.Add(chatId);
                 socket.Send(p.ToBytes());
             }
            
@@ -176,6 +149,7 @@ namespace ChatON
                 Packet p = new Packet(PacketType.Chat, ID);
                 p.data.Add(login);
                 p.data.Add(msg);
+                p.data.Add(chatId);
                 socket.Send(p.ToBytes());
             }
         }
@@ -204,11 +178,10 @@ namespace ChatON
                         DataManager(new Packet(buffer));
                     }
                 }
-                catch (SocketException ex)
+                catch (SocketException)
                 {
                     ConnectionToServerLost();
                 }
-
             }
         }
 
@@ -226,13 +199,23 @@ namespace ChatON
                     Packet packet = new Packet(PacketType.Chat, ID);
                     packet.data.Add(login);
                     packet.data.Add(login + " dołączył(a) do czatu.");
+                    packet.data.Add(chatId);
                     socket.Send(packet.ToBytes());
                     break;
-
-
                 case PacketType.Chat:
                 case PacketType.CloseConnection:
-                    AddMsgToBoard(p.data[1], p.data[0]);
+                    AddPrivateChat(p.clientNames, p.chats);
+                    if (p.chats.Count > 0)
+                    {
+                        mainChatId ??= p.data[2];
+                        chatId = p.data[2] ?? chatId;
+                        var mainChat = p.chats.Find(x => x.Id == chatId);
+                        if (mainChat != null)
+                        {
+                            AddMsgToBoard(mainChat);
+                        }
+
+                    }
                     break;
             }
         }
@@ -245,7 +228,10 @@ namespace ChatON
         /// </summary>
         private void ConnectionToServerLost()
         {
-            AddMsgToBoard("Server disconnected", "Server");
+            var errorChat = new Chat();
+            errorChat.Users = new List<string> { login, "System" };
+            errorChat.Messages = new List<Message> { new Message("Server", DateTime.Now, "Server disconnected") };
+            AddMsgToBoard(errorChat);
 
             this.Dispatcher.Invoke(new Action(() =>
             {
@@ -262,19 +248,29 @@ namespace ChatON
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="user"></param>
-        private void AddMsgToBoard(string msg, string user)
-        {
+        private void AddMsgToBoard(Chat chat)
+        { 
             this.Dispatcher.Invoke(new Action(() =>
             {
-                TextBox messageHeader = new TextBox();
-
-                messageHeader.FontSize = 19;//nie dziala tak
-                messageHeader.Foreground = Brushes.Black;
-                messageHeader.FontWeight = FontWeights.Bold;
-                // cel w innym kolorze i w innych fontsajzie. solution: moze dwa razy invoke action? Nope
-                messageHeader.Text += Environment.NewLine + user + "     " +
-                                 DateTime.Now.ToString("dd/MM/yyyy H:mm");
-                messageHeader.BorderBrush = Brushes.Transparent;
+                if (chat.Id == mainChatId)
+                {
+                    chatName.Text = mainChatName;
+                }
+                else
+                {
+                    chatName.Text = chat.Users.Find(x => x != login);
+                }
+                MsgBoard.Children.Clear();
+                foreach (Message msg in chat.Messages)
+                {
+                    TextBox messageHeader = new TextBox();
+                    messageHeader.FontSize = 19;//nie dziala tak
+                    messageHeader.Foreground = Brushes.Black;
+                    messageHeader.FontWeight = FontWeights.Bold;
+                    // cel w innym kolorze i w innych fontsajzie. solution: moze dwa razy invoke action? Nope
+                    messageHeader.Text += Environment.NewLine + msg.UserName + "     " +
+                                     msg.Date.ToString("dd/MM/yyyy H:mm");
+                    messageHeader.BorderBrush = Brushes.Transparent;
 
                 TextBox message = new TextBox();
 
@@ -300,37 +296,78 @@ namespace ChatON
                     {
                         lastString = " ";
                     }
-
-                    //  Console.WriteLine(str.Substring(i, chunkSize) + lastString + "| ostatni: " + str[i + chunkSize - 1]);
                     message.Text += Environment.NewLine + msg.Substring(i, chunkSize) + lastString;
-
-
                 }
 
 
                 MsgBoard.Children.Add(messageHeader);
                 MsgBoard.Children.Add(message);
 
-
-
-                MsgBoardScroll.ScrollToEnd();
-                //  MsgBoard.UpdateLayout();
-            }));
-
-
-            }
-
-        private void LoginRequireShowMsg() {
-            LoginRequire.Visibility = System.Windows.Visibility.Visible;
-        }
-
-
-        private void ClearRequireMsg()
+        private void AddPrivateChat(List<string> clients, List<Chat> chats)
         {
-            LoginRequire.Visibility = System.Windows.Visibility.Hidden;
+            this.Dispatcher.Invoke(new Action(() =>
+            {
+                sp.Children.Clear();
+                MasterChat(chats.Find(x => x.Id == mainChatId));
+            }));
+            foreach (string client in clients)
+            {
+                this.Dispatcher.Invoke(new Action(() =>
+                {
+                    if (client != login)
+                    {
+                        Button privateChat = new Button();
+
+                        privateChat.Content = client;
+                        privateChat.Name = "newButton" + client;
+                        privateChat.Foreground = Brushes.White;
+                        privateChat.Background = Brushes.MediumPurple;
+                        privateChat.Height = 45;
+                        privateChat.Width = 140;
+                        Chat chat = Chat.getChatsOfUser(chats, client)[0];
+                        privateChat.DataContext = chat;
+                        privateChat.Click += new RoutedEventHandler(ChangeChat);
+
+                        sp.Children.Add(privateChat);
+                    }
+
+                }));
+            }
         }
 
-        
+        private void ChangeChat(Object sender, RoutedEventArgs eventArgs)
+        {
+            Button button = (Button)sender;
+            Chat chat = (Chat)button.DataContext;
+            chatId = chat.Id;
+            AddMsgToBoard(chat);
+        }
 
-    }
+        private void MasterChat(Chat chat)
+        {
+            Button czatOgolny = new Button();
+
+            czatOgolny.Content = mainChatName;
+            czatOgolny.Name = "CzatOgolny";
+            czatOgolny.Foreground = Brushes.White;
+            czatOgolny.Background = Brushes.MediumPurple;
+            czatOgolny.Height = 45;
+            czatOgolny.Width = 140;
+            czatOgolny.DataContext = chat;
+            czatOgolny.Click += new RoutedEventHandler(ChangeChat);
+
+            sp.Children.Add(czatOgolny);
+        }
+
+                    private void LoginRequireShowMsg()
+                    {
+                        LoginRequire.Visibility = System.Windows.Visibility.Visible;
+                    }
+
+
+                    private void ClearRequireMsg()
+                    {
+                        LoginRequire.Visibility = System.Windows.Visibility.Hidden;
+                    }
+                }
 }
