@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Net.Sockets;
 
@@ -12,6 +9,7 @@ namespace Server
     {
         public Socket clientSocket;
         public Thread clientThread;
+        public string name;
         public string id;
 
         public ClientData()
@@ -33,7 +31,6 @@ namespace Server
             sendRegistrationPacketToCLient();
         }
 
-
         /// <summary>
         /// Send packet with client id to new client registreted client
         /// </summary>
@@ -42,7 +39,6 @@ namespace Server
             Packet p = new Packet(PacketType.Registration, "server");
             p.data.Add(id);
             clientSocket.Send(p.ToBytes());
-
         }
     }
 }

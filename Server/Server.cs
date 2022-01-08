@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using System.Net.Sockets;
-using System.IO;
-using System.Threading;
 using System.Net;
-using Rssdp;
+using System.Net.Sockets;
+using System.Threading;
 
 namespace Server
 {
@@ -18,6 +13,8 @@ namespace Server
         static Socket listenerSocket;
         //Tu tez sockety priv chatow
         static List<ClientData> _clients;
+        static List<string> clientNames = new List<string>();
+        static List<Chat> chats = new List<Chat>();
 
         /// <summary>
         /// start server
@@ -35,6 +32,8 @@ namespace Server
             Thread listenThread = new Thread(ListenThread);
             listenThread.Start();
             Console.WriteLine("Success... Listening IP: " + Packet.GetIP4Adress() + ":4242");
+
+            chats.Add(new Chat());
         }
 
 
@@ -94,14 +93,40 @@ namespace Server
             switch (p.packetType)
             {
                 case PacketType.Chat:
+                    string clientName = p.data[0];
+                    string name = clientNames.Find(x => x == clientName);
+                    if (String.IsNullOrWhiteSpace(name))
+                    {
+                        clientNames.Add(clientName);
+                        var client = GetClientByID(p);
+                        client.name = clientName;
+                        foreach (string cName in clientNames)
+                        {
+                            if (cName != clientName)
+                            {
+                                Chat chat = new Chat();
+                                chat.Users.Add(cName);
+                                chat.Users.Add(clientName);
+                                chats.Add(chat);
+                            }
+                        }
+                    }
+                    p.clientNames = clientNames;
+
                     SendMessageToCLients(p);
                     break;
-
 
                 case PacketType.CloseConnection:
                     CancellationTokenSource cts = new CancellationTokenSource();
                     var exitClient = GetClientByID(p);
-
+                    clientNames.Remove(p.data[0]);
+                    p.clientNames = clientNames;
+                    var clientChatList = Chat.getChatsOfUser(chats, p.data[0]);
+                    foreach (Chat chat in clientChatList)
+                    {
+                        if (chat != chats[0])
+                            chats.Remove(chat);
+                    }
                     CloseClientConnection(exitClient);
                     RemoveClientFromList(exitClient);
                     SendMessageToCLients(p);
@@ -116,8 +141,27 @@ namespace Server
         /// <param name="p"></param>
         public static void SendMessageToCLients(Packet p)
         {
+            var mainChat = chats[0];
+            var chatId = p.data[2];
+            Chat chat;
+            if (string.IsNullOrWhiteSpace(chatId))
+            {
+                chatId = mainChat.Id;
+                chat = mainChat;
+            }
+            else
+            {
+                chat = chats.Find(x => x.Id == chatId) ?? mainChat;
+            }
+            chat.Messages.Add(new Message(p.data[0], DateTime.Now, p.data[1]));
+            
             foreach (ClientData c in _clients)
             {
+                List<Chat> clientChatList = Chat.getChatsOfUser(chats, c.name);
+                p.chats = clientChatList;
+                p.chats.Add(mainChat);
+                var isPermited = p.chats.Find(x => x.Id == chatId) != null;
+                p.data[2] = isPermited ? chatId : null;
                 c.clientSocket.Send(p.ToBytes());
             }
         }
@@ -147,10 +191,6 @@ namespace Server
         private static void AbortClientThread(CancellationTokenSource token, ClientData client)
         {
             token.Cancel();
-            if (token.IsCancellationRequested)
-            {
-                Console.WriteLine("Abbording client " + client.id);
-            }
         }
     }
 }
