@@ -67,31 +67,20 @@ namespace ChatON
         /// <param name="e"></param>
         private void ConnectBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(Login.Text) )//login validation
+            if (string.IsNullOrWhiteSpace(Login.Text))//login validation
             {
 
                 LoginRequireShowMsg();
             }
-            
-   
-
-                //  LoginRequireShowMsg(); //TODO TEKST POKAZANY ZA DLUGI LOGIN
-                //}
-                //else if (!IPAddress.TryParse(serverIP.Text, out ipAdress))//ip validation
-                //{
-                //  //  ValidIPRequireShowMsg();
-                //}
-
             else//connection to server
             {
                 ClearRequireMsg();
 
                 string ip = serverIP.Text;
                 IPAddress.TryParse(ip, out ipAdress);
-                AddMsgToBoard(ip, "System");
 
-            socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            IPEndPoint ipEndPoint = new IPEndPoint(ipAdress, 4242);
+                socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                IPEndPoint ipEndPoint = new IPEndPoint(ipAdress, 4242);
 
                 try
                 {
@@ -105,18 +94,18 @@ namespace ChatON
                     thread = new Thread(Data_IN);
                     thread.Start();
 
-                MasterChat(new Chat());
+                    MasterChat(new Chat());
+                }
+                catch (SocketException)
+                {
+                    var errorChat = new Chat();
+                    errorChat.Users = new List<string> { login, "System" };
+                    errorChat.Messages = new List<Message> { new Message("System", DateTime.Now, "Error during connecting to server") };
+                    AddMsgToBoard(errorChat);
+                }
             }
-            catch (SocketException)
-            {
-                var errorChat = new Chat();
-                errorChat.Users = new List<string> { login, "System" };
-                errorChat.Messages = new List<Message> { new Message("System", DateTime.Now, "Error during connecting to server") };
-                AddMsgToBoard(errorChat);
-            }
+
         }
-
-
 
         /// <summary>
         /// send message to server
@@ -136,7 +125,7 @@ namespace ChatON
                 p.data.Add(chatId);
                 socket.Send(p.ToBytes());
             }
-           
+
         }
 
         private void OnKeyDownHandler(object sender, KeyEventArgs e)
@@ -249,7 +238,7 @@ namespace ChatON
         /// <param name="msg"></param>
         /// <param name="user"></param>
         private void AddMsgToBoard(Chat chat)
-        { 
+        {
             this.Dispatcher.Invoke(new Action(() =>
             {
                 if (chat.Id == mainChatId)
@@ -264,45 +253,26 @@ namespace ChatON
                 foreach (Message msg in chat.Messages)
                 {
                     TextBox messageHeader = new TextBox();
-                    messageHeader.FontSize = 19;//nie dziala tak
+                    messageHeader.FontSize = 19;
                     messageHeader.Foreground = Brushes.Black;
                     messageHeader.FontWeight = FontWeights.Bold;
-                    // cel w innym kolorze i w innych fontsajzie. solution: moze dwa razy invoke action? Nope
                     messageHeader.Text += Environment.NewLine + msg.UserName + "     " +
                                      msg.Date.ToString("dd/MM/yyyy H:mm");
                     messageHeader.BorderBrush = Brushes.Transparent;
 
-                TextBox message = new TextBox();
-
-                message.FontSize = 15;
-                message.Foreground = Brushes.Purple;
-                int messLines = msg.Length / 40;
-                message.BorderBrush = Brushes.BlanchedAlmond;
-
-                int chunkSize = 39;
-                int stringLength = msg.Length;
-
-                for (int i = 0; i < stringLength; i += chunkSize)
-                {
-                    if (i + chunkSize > stringLength) chunkSize = stringLength - i;
-
-                    string lastString;
-                    if (msg[i + chunkSize - 1].ToString() != " " && i + chunkSize < stringLength && msg[i + chunkSize].ToString() != " ")
-                    {// i nie jest to ostatni
-                        lastString = "-";
-
-                    }
-                    else
-                    {
-                        lastString = " ";
-                    }
-                    message.Text += Environment.NewLine + msg.Substring(i, chunkSize) + lastString;
+                    TextBox message = new TextBox();
+                    message.FontSize = 15;
+                    message.Foreground = Brushes.Purple;
+                    int messLines = msg.MessageString.Length / 40;
+                    message.Text += Environment.NewLine + msg.MessageString;
+                    message.BorderBrush = Brushes.BlanchedAlmond;
+                    MsgBoard.Children.Add(messageHeader);
+                    MsgBoard.Children.Add(message);
                 }
-
-
-                MsgBoard.Children.Add(messageHeader);
-                MsgBoard.Children.Add(message);
-
+                MsgBoardScroll.ScrollToEnd();
+                //  MsgBoard.UpdateLayout();
+            }));
+        }
         private void AddPrivateChat(List<string> clients, List<Chat> chats)
         {
             this.Dispatcher.Invoke(new Action(() =>
@@ -359,15 +329,15 @@ namespace ChatON
             sp.Children.Add(czatOgolny);
         }
 
-                    private void LoginRequireShowMsg()
-                    {
-                        LoginRequire.Visibility = System.Windows.Visibility.Visible;
-                    }
+        private void LoginRequireShowMsg()
+        {
+            LoginRequire.Visibility = Visibility.Visible;
+        }
 
 
-                    private void ClearRequireMsg()
-                    {
-                        LoginRequire.Visibility = System.Windows.Visibility.Hidden;
-                    }
-                }
+        private void ClearRequireMsg()
+        {
+            LoginRequire.Visibility = Visibility.Hidden;
+        }
+    }
 }

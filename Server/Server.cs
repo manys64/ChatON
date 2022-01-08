@@ -193,6 +193,10 @@ namespace Server
         {
 
             token.Cancel();
+            if (token.IsCancellationRequested)
+            {
+                Console.WriteLine("Abbording client " + client.id);
+            }
         }
     }
 }
