@@ -11,7 +11,6 @@ namespace Server
     {
 
         static Socket listenerSocket;
-        //Tu tez sockety priv chatow
         static List<ClientData> _clients;
         static List<string> clientNames = new List<string>();
         static List<Chat> chats = new List<Chat>();
