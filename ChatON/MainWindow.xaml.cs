@@ -211,6 +211,7 @@ namespace ChatON
                 case PacketType.Registration:
                     ID = p.data[0];
                     Packet packet = new Packet(PacketType.Chat, ID);
+                    login = login +"#"+ ID.Substring(0, 4);
                     packet.data.Add(login);
                     packet.data.Add(login + " dołączył(a) do czatu.");
                     packet.data.Add(chatId);
@@ -317,7 +318,10 @@ namespace ChatON
                         Button privateChat = new Button();
 
                         privateChat.Content = client;
-                        privateChat.Name = "newButton" + client;
+                        string clientBtnName = Reverse(client);
+                        clientBtnName = clientBtnName.Remove(4, 1);
+                        clientBtnName = Reverse(clientBtnName);
+                        privateChat.Name = "newButton" + clientBtnName;
                         privateChat.Foreground = Brushes.White;
                         privateChat.Background = Brushes.MediumPurple;
                         privateChat.Height = 45;
@@ -332,6 +336,13 @@ namespace ChatON
 
                 }));
             }
+        }
+
+        public static string Reverse(string s)
+        {
+            char[] charArray = s.ToCharArray();
+            Array.Reverse(charArray);
+            return new string(charArray);
         }
 
         private void ChangeChat(Object sender, RoutedEventArgs eventArgs)

@@ -72,20 +72,8 @@ namespace Server
                     if (readBytes > 0)
                     {
                         Packet p = new Packet(Buffer);
-                        var reqClient = GetClientByID(p);
+                        DataManager(p);
 
-
-                        if (nickVal(p) )//jesli nick juz jest  a  id nie ma todo
-                        {
-                            Console.WriteLine("duplikat papa");
-                            
-                        }
-                        else
-                        {
-                            Console.WriteLine("ok unikat");
-                            DataManager(p);
-
-                        }
                     }
                 }
                 catch (ObjectDisposedException ex)
