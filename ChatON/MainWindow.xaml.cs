@@ -62,9 +62,7 @@ namespace ChatON
 
         private static void AbortClientThread(CancellationTokenSource token)
         {
-
             token.Cancel();
-
         }
 
         /// <summary>
@@ -76,7 +74,7 @@ namespace ChatON
         /// <param name="e"></param>
         private void ConnectBtn_Click(object sender, RoutedEventArgs e)
         {
-          
+
             bool loginHasSpace = Login.Text.Contains(" ");
             if (string.IsNullOrWhiteSpace(Login.Text) || loginHasSpace || invalidIp(serverIP.Text))//login validation
             {
@@ -91,13 +89,12 @@ namespace ChatON
                     IPRequireShowMsg();
                     ClearRequireMsg();
                 }
-           
                 else
                 {
                     LoginRequireShowMsg();
                     IPRequireShowMsg();
                 }
-              
+
             }
             else//connection to server
             {
@@ -155,8 +152,6 @@ namespace ChatON
             }
 
         }
-
-     
 
         private void OnKeyDownHandler(object sender, KeyEventArgs e)
         {
@@ -216,7 +211,7 @@ namespace ChatON
                 case PacketType.Registration:
                     ID = p.data[0];
                     Packet packet = new Packet(PacketType.Chat, ID);
-                    login = login +"#"+ ID.Substring(0, 4);
+                    login = login + "#" + ID.Substring(0, 4);
                     packet.data.Add(login);
                     packet.data.Add(login + " dołączył(a) do czatu.");
                     packet.data.Add(chatId);
@@ -297,22 +292,24 @@ namespace ChatON
                     message.FontSize = 15;
                     message.Foreground = Brushes.Purple;
                     int chunkSize = 39;
-                int stringLength = msg.MessageString.Length;
+                    int stringLength = msg.MessageString.Length;
 
-                for (int i = 0; i < stringLength; i += chunkSize)
-                {
-                    if (i + chunkSize > stringLength) chunkSize = stringLength - i;
-                    string lastString;
-                    if (msg.MessageString[i + chunkSize - 1].ToString() != " " && i + chunkSize < stringLength && msg.MessageString[i + chunkSize].ToString() != " ")
+                    for (int i = 0; i < stringLength; i += chunkSize)
                     {
-                        lastString = "-";
+                        if (i + chunkSize > stringLength) chunkSize = stringLength - i;
+                        string lastString;
+                        if (msg.MessageString[i + chunkSize - 1].ToString() != " "
+                            && i + chunkSize < stringLength
+                            && msg.MessageString[i + chunkSize].ToString() != " ")
+                        {
+                            lastString = "-";
+                        }
+                        else
+                        {
+                            lastString = " ";
+                        }
+                        message.Text += Environment.NewLine + msg.MessageString.Substring(i, chunkSize) + lastString;
                     }
-                    else
-                    {
-                        lastString = " ";
-                    }
-                    message.Text += Environment.NewLine + msg.MessageString.Substring(i, chunkSize) + lastString;
-                }
                     message.BorderBrush = Brushes.BlanchedAlmond;
                     MsgBoard.Children.Add(messageHeader);
                     MsgBoard.Children.Add(message);
@@ -352,8 +349,6 @@ namespace ChatON
 
                         sp.Children.Add(privateChat);
                     }
-                    
-
                 }));
             }
         }
@@ -369,8 +364,11 @@ namespace ChatON
         {
             Button button = (Button)sender;
             Chat chat = (Chat)button.DataContext;
-            chatId = chat.Id;
-            AddMsgToBoard(chat);
+            if (chat != null)
+            {
+                chatId = chat.Id;
+                AddMsgToBoard(chat);
+            }
         }
 
         private void MasterChat(Chat chat)
@@ -394,7 +392,6 @@ namespace ChatON
             LoginRequire.Visibility = Visibility.Visible;
         }
 
-
         private void ClearRequireMsg()
         {
             LoginRequire.Visibility = Visibility.Hidden;
@@ -404,7 +401,6 @@ namespace ChatON
         {
             IPRequire.Visibility = Visibility.Visible;
         }
-
 
         private void IPClearRequireMsg()
         {
@@ -443,9 +439,5 @@ namespace ChatON
 
             InitialGrid.Visibility = Visibility.Hidden;
         }
-
-
     }
 }
-
-
