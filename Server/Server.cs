@@ -72,7 +72,20 @@ namespace Server
                     if (readBytes > 0)
                     {
                         Packet p = new Packet(Buffer);
-                        DataManager(p);
+                        var reqClient = GetClientByID(p);
+
+
+                        if (nickVal(p) )//jesli nick juz jest  a  id nie ma todo
+                        {
+                            Console.WriteLine("duplikat papa");
+                            
+                        }
+                        else
+                        {
+                            Console.WriteLine("ok unikat");
+                            DataManager(p);
+
+                        }
                     }
                 }
                 catch (ObjectDisposedException ex)
@@ -83,37 +96,35 @@ namespace Server
             }
         }
 
+        public static bool nickVal(Packet p)
+        {
+            string enteredNick = p.data[0];
+
+            if (clientNames.Contains(enteredNick))
+            {
+                return true;
+
+            }
+            else
+            {
+                return false;
+            }
+
+
+        }
+
 
         /// <summary>
         /// manage all received packets by PacketType
         /// </summary>
+        /// <param name="p"></param>
         /// <param name="p"></param>
         public static void DataManager(Packet p)
         {
             switch (p.packetType)
             {
                 case PacketType.Chat:
-                    string clientName = p.data[0];
-                    string name = clientNames.Find(x => x == clientName);
-                    if (String.IsNullOrWhiteSpace(name))
-                    {
-                        clientNames.Add(clientName);
-                        var client = GetClientByID(p);
-                        client.name = clientName;
-                        foreach (string cName in clientNames)
-                        {
-                            if (cName != clientName)
-                            {
-                                Chat chat = new Chat();
-                                chat.Users.Add(cName);
-                                chat.Users.Add(clientName);
-                                chats.Add(chat);
-                            }
-                        }
-                    }
-                    p.clientNames = clientNames;
-
-                    SendMessageToCLients(p);
+                    chatsReload(p);
                     break;
 
                 case PacketType.CloseConnection:
@@ -134,6 +145,33 @@ namespace Server
                     break;
             }
         }
+
+        public static void chatsReload(Packet p)
+        {
+            string clientName = p.data[0];
+            string name = clientNames.Find(x => x == clientName);
+            if (String.IsNullOrWhiteSpace(name))
+            {
+                clientNames.Add(clientName);
+                var client = GetClientByID(p);
+                client.name = clientName;
+                foreach (string cName in clientNames)
+                {
+                    if (cName != clientName)
+                    {
+                        Chat chat = new Chat();
+                        chat.Users.Add(cName);
+                        chat.Users.Add(clientName);
+                        chats.Add(chat);
+                    }
+                }
+            }
+            p.clientNames = clientNames;
+
+            SendMessageToCLients(p);
+        }
+
+
 
         /// <summary>
         /// send message for each client in clietn list

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -53,10 +54,18 @@ namespace ChatON
 
                 socket.Close();
                 isConnected = false;
-                thread.Abort();
+                //  thread.Abort();
+                CancellationTokenSource cts = new CancellationTokenSource();
+                AbortClientThread(cts);
             }
         }
 
+        private static void AbortClientThread(CancellationTokenSource token)
+        {
+
+            token.Cancel();
+
+        }
 
         /// <summary>
         /// connect Button click event
@@ -67,15 +76,29 @@ namespace ChatON
         /// <param name="e"></param>
         private void ConnectBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(Login.Text))//login validation
+            if (string.IsNullOrWhiteSpace(Login.Text) || invalidIp(serverIP.Text))//login validation
             {
+                if (string.IsNullOrWhiteSpace(Login.Text))
+                {
+                    LoginRequireShowMsg();
 
-                LoginRequireShowMsg();
+                }
+                else if (invalidIp(serverIP.Text))
+                {
+                    IPRequireShowMsg();
+                }
+                else
+                {
+                    LoginRequireShowMsg();
+                    IPRequireShowMsg();
+                }
+              
             }
             else//connection to server
             {
                 ClearRequireMsg();
-
+                IPClearRequireMsg();
+                showAllUIAfterConnection();
                 string ip = serverIP.Text;
                 IPAddress.TryParse(ip, out ipAdress);
 
@@ -127,6 +150,8 @@ namespace ChatON
             }
 
         }
+
+     
 
         private void OnKeyDownHandler(object sender, KeyEventArgs e)
         {
@@ -219,7 +244,7 @@ namespace ChatON
         {
             var errorChat = new Chat();
             errorChat.Users = new List<string> { login, "System" };
-            errorChat.Messages = new List<Message> { new Message("Server", DateTime.Now, "Server disconnected") };
+            errorChat.Messages = new List<Message> { new Message("Server", DateTime.Now, "Server nie jest aktywny.") };
             AddMsgToBoard(errorChat);
 
             this.Dispatcher.Invoke(new Action(() =>
@@ -229,7 +254,9 @@ namespace ChatON
             }));
 
             socket.Close();
-            thread.Abort();
+            //thread.Abort();
+            CancellationTokenSource cts = new CancellationTokenSource();
+            AbortClientThread(cts);
         }
 
         /// <summary>
@@ -280,6 +307,7 @@ namespace ChatON
                 sp.Children.Clear();
                 MasterChat(chats.Find(x => x.Id == mainChatId));
             }));
+
             foreach (string client in clients)
             {
                 this.Dispatcher.Invoke(new Action(() =>
@@ -300,6 +328,7 @@ namespace ChatON
 
                         sp.Children.Add(privateChat);
                     }
+                    
 
                 }));
             }
@@ -340,6 +369,17 @@ namespace ChatON
             LoginRequire.Visibility = Visibility.Hidden;
         }
 
+        private void IPRequireShowMsg()
+        {
+            IPRequire.Visibility = Visibility.Visible;
+        }
+
+
+        private void IPClearRequireMsg()
+        {
+            IPRequire.Visibility = Visibility.Hidden;
+        }
+
         private void Msg_GotFocus(object sender, RoutedEventArgs e)
         {
             string txt = Msg.Text;
@@ -349,5 +389,32 @@ namespace ChatON
                 Msg.Text = "";
             }
         }
+
+        private bool invalidIp(string ip)
+        {
+
+            Match match = Regex.Match(ip, @"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}");
+            if (!match.Success)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private void showAllUIAfterConnection()
+        {
+            LeftGrid.Visibility = Visibility.Visible;
+            chatName.Visibility = Visibility.Visible;
+            MainGrid.Visibility = Visibility.Visible;
+
+            InitialGrid.Visibility = Visibility.Hidden;
+        }
+
+
     }
 }
+
+
