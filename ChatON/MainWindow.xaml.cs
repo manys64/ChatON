@@ -76,9 +76,11 @@ namespace ChatON
         /// <param name="e"></param>
         private void ConnectBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(Login.Text) || invalidIp(serverIP.Text))//login validation
+          
+            bool loginHasSpace = Login.Text.Contains(" ");
+            if (string.IsNullOrWhiteSpace(Login.Text) || loginHasSpace || invalidIp(serverIP.Text))//login validation
             {
-                if (string.IsNullOrWhiteSpace(Login.Text))
+                if (string.IsNullOrWhiteSpace(Login.Text) || loginHasSpace)
                 {
                     LoginRequireShowMsg();
 
@@ -87,6 +89,7 @@ namespace ChatON
                 {
                     IPRequireShowMsg();
                 }
+           
                 else
                 {
                     LoginRequireShowMsg();
@@ -291,8 +294,23 @@ namespace ChatON
                     TextBox message = new TextBox();
                     message.FontSize = 15;
                     message.Foreground = Brushes.Purple;
-                    int messLines = msg.MessageString.Length / 40;
-                    message.Text += Environment.NewLine + msg.MessageString;
+                    int chunkSize = 39;
+                int stringLength = msg.MessageString.Length;
+
+                for (int i = 0; i < stringLength; i += chunkSize)
+                {
+                    if (i + chunkSize > stringLength) chunkSize = stringLength - i;
+                    string lastString;
+                    if (msg.MessageString[i + chunkSize - 1].ToString() != " " && i + chunkSize < stringLength && msg.MessageString[i + chunkSize].ToString() != " ")
+                    {
+                        lastString = "-";
+                    }
+                    else
+                    {
+                        lastString = " ";
+                    }
+                    message.Text += Environment.NewLine + msg.MessageString.Substring(i, chunkSize) + lastString;
+                }
                     message.BorderBrush = Brushes.BlanchedAlmond;
                     MsgBoard.Children.Add(messageHeader);
                     MsgBoard.Children.Add(message);
