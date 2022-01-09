@@ -72,7 +72,6 @@ namespace Server
                     {
                         Packet p = new Packet(Buffer);
                         DataManager(p);
-
                     }
                 }
                 catch (ObjectDisposedException ex)
@@ -86,20 +85,15 @@ namespace Server
         public static bool nickVal(Packet p)
         {
             string enteredNick = p.data[0];
-
             if (clientNames.Contains(enteredNick))
             {
                 return true;
-
             }
             else
             {
                 return false;
             }
-
-
         }
-
 
         /// <summary>
         /// manage all received packets by PacketType
@@ -158,8 +152,6 @@ namespace Server
             SendMessageToCLients(p);
         }
 
-
-
         /// <summary>
         /// send message for each client in clietn list
         /// </summary>
@@ -202,7 +194,6 @@ namespace Server
                     where client.id == p.senderID
                     select client)
                     .FirstOrDefault();
-
         }
 
         private static void CloseClientConnection(ClientData c)
@@ -216,12 +207,7 @@ namespace Server
       
         private static void AbortClientThread(CancellationTokenSource token, ClientData client)
         {
-
             token.Cancel();
-            if (token.IsCancellationRequested)
-            {
-                Console.WriteLine("Abbording client " + client.id);
-            }
         }
     }
 }
