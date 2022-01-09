@@ -83,11 +83,13 @@ namespace ChatON
                 if (string.IsNullOrWhiteSpace(Login.Text) || loginHasSpace)
                 {
                     LoginRequireShowMsg();
+                    IPClearRequireMsg();
 
                 }
                 else if (invalidIp(serverIP.Text))
                 {
                     IPRequireShowMsg();
+                    ClearRequireMsg();
                 }
            
                 else
